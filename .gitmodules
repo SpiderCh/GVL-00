@@ -1,0 +1,4 @@
+[submodule "cmake"]
+	path = cmake
+	url = git@github.com:SpiderCh/cmake_helpers.git
+	branch = develop
