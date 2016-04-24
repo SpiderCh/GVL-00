@@ -11,6 +11,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_HELPER_FILES}")
 include(${CMAKE_HELPER_FILES}/compile_defenitions.cmake)
 include(${CMAKE_HELPER_FILES}/target.cmake)
 include(${CMAKE_HELPER_FILES}/install_target.cmake)
+include(${CMAKE_HELPER_FILES}/documentation.cmake)
 
 find_package(Boost REQUIRED)
 find_package(LibGit2 REQUIRED)
