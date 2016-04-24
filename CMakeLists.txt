@@ -17,7 +17,7 @@ find_package(Boost REQUIRED)
 find_package(LibGit2 REQUIRED)
 
 AddCompileDefenitions(
-	"-std=c++11"
+	"-std=c++14"
 	"-Wall"
 	"-Wpedantic"
 	"-Wextra"
