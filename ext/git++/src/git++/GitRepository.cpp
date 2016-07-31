@@ -1,24 +1,96 @@
 #include "GitRepository.hpp"
 
-namespace git {
-Repository::Repository() = default;
+#include <git2/repository.h>
+#include <git2/clone.h>
+
+#include <iostream>
+
+namespace Git {
+
+namespace
+{
+int FetchProgress(const git_transfer_progress *stats, void *data)
+{
+	Repository::CloneCallbacks *cb = (Repository::CloneCallbacks*)data;
+	if(cb && cb->fetchProgress)
+		cb->fetchProgress(stats->total_objects,
+						  stats->indexed_objects,
+						  stats->received_objects,
+						  stats->local_objects,
+						  stats->total_deltas,
+						  stats->indexed_deltas,
+						  stats->received_bytes);
+	return 0;
+}
+
+void CheckoutProgress(const char *path, size_t cur,  size_t tot,  void *data)
+{
+	Repository::CloneCallbacks *cb = (Repository::CloneCallbacks*)data;
+	if(cb && cb->checkoutProgress)
+		cb->checkoutProgress(path, cur, tot);
+}
+}
+
+struct Repository::Impl
+{
+	git_repository* repository {nullptr};
+	std::string path;
+};
+
+Repository::Repository()
+	:m_impl(std::make_unique<Impl>())
+{}
 
 Repository::~Repository()
 {
 	Close();
 }
 
-void  Repository::Close()
+bool Repository::Open(const std::string &path)
 {
-	if(m_repository)
-		git_repository_free(m_repository);
-	m_repository = nullptr;
-	m_repoPath = "";
+	if(m_impl->repository)
+		return false;
+
+	m_impl->path = path;
+	const int error = git_repository_open(&m_impl->repository, m_impl->path.c_str());
+
+	return error == 0;
 }
 
-bool Repository::Open(const std::string &path, bool isBare)
+bool Repository::Clone(const std::string &path, const std::string &url, CloneCallbacks cb)
 {
-	return false;
+	if(m_impl->repository)
+		return false;
+
+	m_impl->path = path;
+
+	git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
+
+	clone_opts.checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+	clone_opts.checkout_opts.progress_cb = CheckoutProgress;
+	clone_opts.checkout_opts.progress_payload = &cb;
+//	clone_opts.checkout_opts
+	clone_opts.fetch_opts.callbacks.transfer_progress = FetchProgress;
+	clone_opts.fetch_opts.callbacks.payload = &cb;
+
+	const int error = git_clone(&m_impl->repository, url.c_str(), m_impl->path.c_str(), &clone_opts);
+
+	return error == 0;
+}
+
+void  Repository::Close()
+{
+	if(!m_impl->repository)
+		return;
+
+	git_repository_free(m_impl->repository);
+	m_impl->repository = nullptr;
+	m_impl->path = "";
+}
+
+std::string Repository::GetPath() const
+{
+	return m_impl->path;
 }
 
 }

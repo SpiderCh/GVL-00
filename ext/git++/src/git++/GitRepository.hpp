@@ -1,40 +1,39 @@
-#include <git2/repository.h>
+#include <memory>
 #include <string>
+#include <functional>
 
-namespace git {
+namespace Git {
 
 /**
  *  @brief Класс описывающий git репозиторий.
  */
+
 class Repository
 {
 public:
+	struct CloneCallbacks
+	{
+		std::function<void(unsigned int,
+						   unsigned int,
+						   unsigned int,
+						   unsigned int,
+						   unsigned int,
+						   unsigned int,
+						   size_t)> fetchProgress {nullptr};
+		std::function<void(const char*,size_t,size_t)> checkoutProgress {nullptr};
+	};
+
 	Repository();
 	~Repository();
 
-	/**
-	 * @brief  Функция открывающая существующий репозиторий
-	 * @param path --- путь до репозитория
-	 * @param isBare --- пустой ли это репозиторий
-	 * @return true если репозиторий удалось открыть, в противном случае false
-	 */
-	bool Open(const std::string& path, bool isBare = false);
+	bool Open(const std::string& path);
+	bool Clone(const std::string& path, const std::string& url, CloneCallbacks cb);
 
-	/**
-	 * @brief Функция создаёт репозиторий по указанному пути
-	 * @param path --- путь до нового репозитория
-	 * @param isBare --- пустой репозиторий
-	 * @return true если репозиторий удалось открыть, в противном случае false
-	 */
-	bool Create(const std::string& path, bool isBare = false);
-
-	/**
-	 * @brief  Функция закрывает работу с выбранным репозиторием.
-	 */
 	void Close();
+	std::string GetPath() const;
 
 private:
-	git_repository* m_repository{nullptr};
-	std::string m_repoPath;
+	struct Impl;
+	std::unique_ptr<Impl> m_impl;
 };
 }
