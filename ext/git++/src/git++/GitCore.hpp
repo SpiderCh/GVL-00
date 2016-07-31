@@ -1,10 +1,19 @@
 #ifndef GITVIEWER_GITCORE_HPP
 #define GITVIEWER_GITCORE_HPP
 
-namespace git
+#include <string>
+
+namespace Git
 {
-    void InitGitCore();
-    void DeInitGitCore();
+struct GitError
+{
+	std::string message;
+	int errorType;
+};
+
+void InitGitCore();
+void DeInitGitCore();
+GitError GetLastError();
 }
 
 
