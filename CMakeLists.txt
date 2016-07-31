@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 3.3.1)
+cmake_minimum_required(VERSION 3.6.0)
+
+if("${COMPILER}" STREQUAL "clang")
+	message(STATUS "Building with Clang")
+	set(CMAKE_C_COMPILER "/usr/bin/clang")
+	set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+else()
+	message(STATUS "Building with GCC")
+	set(CMAKE_C_COMPILER "/usr/bin/gcc")
+	set(CMAKE_CXX_COMPILER "/usr/bin/g++")
+endif("${COMPILER}" STREQUAL "clang")
 
 project(GitViewer)
 
@@ -14,20 +24,24 @@ include(${CMAKE_HELPER_FILES}/target.cmake)
 include(${CMAKE_HELPER_FILES}/install_target.cmake)
 include(${CMAKE_HELPER_FILES}/documentation.cmake)
 
+set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -Wextra")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # Modules
 include(${EXT_DIR}/git++/LibGit++.cmake)
 
-find_package(Boost REQUIRED)
-find_package(LibGit2 REQUIRED)
-
-AddCompileDefenitions(
-	"-std=c++14"
-	"-Wall"
-	"-Wpedantic"
-	"-Wextra"
-    )
-
-AddTarget(NAME GitViewer
+AddTarget(
+	NAME GitViewer
 	TYPE app
-	OUTPUT_NAME "GitViewer"
-	SOURCE_DIR "${SOURCE_DIR}/*")
+	OUTPUT_NAME "GitViewer++"
+	SOURCE_DIR "${SOURCE_DIR}"
+	CMAKE
+		Boost
+	QT_LIB
+		Core
+		Widgets
+		Gui
+	DEPENDENCIES
+		libgit++
+	)

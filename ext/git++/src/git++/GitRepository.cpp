@@ -1,8 +1,7 @@
 #include "GitRepository.hpp"
 
 namespace git {
-Repository::Repository()
-{}
+Repository::Repository() = default;
 
 Repository::~Repository()
 {
@@ -11,8 +10,8 @@ Repository::~Repository()
 
 void  Repository::Close()
 {
-//	if(m_repository)
-//		git_repository_free(m_repository);
+	if(m_repository)
+		git_repository_free(m_repository);
 	m_repository = nullptr;
 	m_repoPath = "";
 }

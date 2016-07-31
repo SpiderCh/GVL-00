@@ -3,7 +3,8 @@
 namespace git
 {
 	Commit::Commit()
-	{}
+	{
+	}
 
 	Commit::~Commit()
 	{
