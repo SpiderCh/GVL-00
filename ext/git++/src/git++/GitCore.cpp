@@ -2,10 +2,20 @@
 
 #include <git2/global.h>
 #include <git2/errors.h>
-#include <git2.h>
 
 namespace Git {
-void InitGitCore() {
+
+GitError::GitError()
+	: errorType(GITERR_NONE)
+{}
+
+GitError::GitError(int error, std::string message)
+	: message(message)
+	, errorType(error)
+{}
+
+void InitGitCore()
+{
 	git_libgit2_init();
 }
 
@@ -17,9 +27,6 @@ void DeInitGitCore()
 GitError GetLastError()
 {
 	const git_error *err = giterr_last();
-	GitError error;
-	error.errorType = err->klass;
-	error.message = err->message;
-	return error;
+	return GitError{err->klass, err->message};
 }
 }

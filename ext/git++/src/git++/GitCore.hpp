@@ -9,6 +9,9 @@ struct GitError
 {
 	std::string message;
 	int errorType;
+
+	GitError();
+	GitError(int, std::string);
 };
 
 void InitGitCore();
