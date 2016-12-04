@@ -6,6 +6,7 @@ AddTarget(
 	CMAKE
 		PkgConfig
 	FIND_PKG
+		libgit2
 	EXTRA_CMAKE
 		LibGit2
 	LINK_LIB
