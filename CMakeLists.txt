@@ -1,15 +1,5 @@
 cmake_minimum_required(VERSION 3.6.0)
 
-if("${COMPILER}" STREQUAL "clang")
-	message(STATUS "Building with Clang")
-	set(CMAKE_C_COMPILER "/usr/bin/clang")
-	set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
-else()
-	message(STATUS "Building with GCC")
-	set(CMAKE_C_COMPILER "/usr/bin/gcc")
-	set(CMAKE_CXX_COMPILER "/usr/bin/g++")
-endif("${COMPILER}" STREQUAL "clang")
-
 project(GitViewer)
 
 set(REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
