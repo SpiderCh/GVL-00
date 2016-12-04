@@ -2,8 +2,7 @@
 
 #include <git2/repository.h>
 #include <git2/clone.h>
-
-#include <iostream>
+#include <git2/errors.h>
 
 namespace Git {
 
@@ -11,7 +10,7 @@ namespace
 {
 int FetchProgress(const git_transfer_progress *stats, void *data)
 {
-	Repository::CloneCallbacks *cb = (Repository::CloneCallbacks*)data;
+	Repository::CloneCallbacks *cb = reinterpret_cast<Repository::CloneCallbacks*>(data);
 	if(cb && cb->fetchProgress)
 		cb->fetchProgress(stats->total_objects,
 						  stats->indexed_objects,
@@ -25,11 +24,18 @@ int FetchProgress(const git_transfer_progress *stats, void *data)
 
 void CheckoutProgress(const char *path, size_t cur,  size_t tot,  void *data)
 {
-	Repository::CloneCallbacks *cb = (Repository::CloneCallbacks*)data;
+	Repository::CloneCallbacks *cb = reinterpret_cast<Repository::CloneCallbacks*>(data);
 	if(cb && cb->checkoutProgress)
 		cb->checkoutProgress(path, cur, tot);
 }
 }
+
+Repository::CloneCallbacks::CloneCallbacks() = default;
+
+Repository::CloneCallbacks::CloneCallbacks(const FetchCallback &fc, const CheckoutCallback& cc)
+	: fetchProgress(fc)
+	, checkoutProgress(cc)
+{}
 
 struct Repository::Impl
 {
@@ -54,7 +60,7 @@ bool Repository::Open(const std::string &path)
 	m_impl->path = path;
 	const int error = git_repository_open(&m_impl->repository, m_impl->path.c_str());
 
-	return error == 0;
+	return error == GITERR_NONE;
 }
 
 bool Repository::Clone(const std::string &path, const std::string &url, CloneCallbacks cb)
@@ -69,13 +75,12 @@ bool Repository::Clone(const std::string &path, const std::string &url, CloneCal
 	clone_opts.checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
 	clone_opts.checkout_opts.progress_cb = CheckoutProgress;
 	clone_opts.checkout_opts.progress_payload = &cb;
-//	clone_opts.checkout_opts
 	clone_opts.fetch_opts.callbacks.transfer_progress = FetchProgress;
 	clone_opts.fetch_opts.callbacks.payload = &cb;
 
 	const int error = git_clone(&m_impl->repository, url.c_str(), m_impl->path.c_str(), &clone_opts);
 
-	return error == 0;
+	return error == GITERR_NONE;
 }
 
 void  Repository::Close()
@@ -91,6 +96,11 @@ void  Repository::Close()
 std::string Repository::GetPath() const
 {
 	return m_impl->path;
+}
+
+git_repository* Repository::GetRespository()
+{
+	return m_impl->repository;
 }
 
 }

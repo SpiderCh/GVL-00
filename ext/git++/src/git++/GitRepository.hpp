@@ -2,6 +2,8 @@
 #include <string>
 #include <functional>
 
+struct git_repository;
+
 namespace Git {
 
 /**
@@ -13,14 +15,20 @@ class Repository
 public:
 	struct CloneCallbacks
 	{
-		std::function<void(unsigned int,
-						   unsigned int,
-						   unsigned int,
-						   unsigned int,
-						   unsigned int,
-						   unsigned int,
-						   size_t)> fetchProgress {nullptr};
-		std::function<void(const char*,size_t,size_t)> checkoutProgress {nullptr};
+		using FetchCallback = std::function<void(unsigned int,
+												 unsigned int,
+												 unsigned int,
+												 unsigned int,
+												 unsigned int,
+												 unsigned int,
+												 size_t)>;
+		using CheckoutCallback = std::function<void(const char*,size_t,size_t)>;
+
+		FetchCallback fetchProgress {nullptr};
+		CheckoutCallback checkoutProgress {nullptr};
+
+		CloneCallbacks();
+		CloneCallbacks(const FetchCallback&, const CheckoutCallback&);
 	};
 
 	Repository();
@@ -31,6 +39,9 @@ public:
 
 	void Close();
 	std::string GetPath() const;
+
+private:
+	git_repository* GetRespository();
 
 private:
 	struct Impl;
