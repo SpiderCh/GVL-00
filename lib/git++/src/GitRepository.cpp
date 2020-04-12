@@ -1,4 +1,4 @@
-#include "GitRepository.hpp"
+#include "git++/GitRepository.hpp"
 
 #include <git2/repository.h>
 #include <git2/clone.h>
@@ -8,7 +8,7 @@ namespace Git {
 
 namespace
 {
-int FetchProgress(const git_transfer_progress *stats, void *data)
+int FetchProgress(const git_indexer_progress *stats, void *data)
 {
 	Repository::CloneCallbacks *cb = reinterpret_cast<Repository::CloneCallbacks*>(data);
 	if(cb && cb->fetchProgress)
@@ -60,10 +60,10 @@ bool Repository::Open(const std::string &path)
 	m_impl->path = path;
 	const int error = git_repository_open(&m_impl->repository, m_impl->path.c_str());
 
-	return error == GITERR_NONE;
+	return error == GIT_ERROR_NONE;
 }
 
-bool Repository::Clone(const std::string &path, const std::string &url, CloneCallbacks cb)
+bool Repository:: Clone(const std::string &path, const std::string &url, CloneCallbacks cb)
 {
 	if(m_impl->repository)
 		return false;
@@ -80,7 +80,7 @@ bool Repository::Clone(const std::string &path, const std::string &url, CloneCal
 
 	const int error = git_clone(&m_impl->repository, url.c_str(), m_impl->path.c_str(), &clone_opts);
 
-	return error == GITERR_NONE;
+	return error == GIT_ERROR_NONE;
 }
 
 void  Repository::Close()

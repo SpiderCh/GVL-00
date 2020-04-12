@@ -1,4 +1,4 @@
-#include "GitCommit.hpp"
+#include "git++/GitCommit.hpp"
 
 namespace git
 {
