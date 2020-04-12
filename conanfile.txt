@@ -1,0 +1,5 @@
+[requires]
+libgit2/1.0.0@chas/stable
+
+[generators]
+cmake
