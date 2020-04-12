@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 	);
 
 	Git::Repository repo;
-	const bool res = repo.Clone("/home/chas/Projects/git/test/gvl-01", "https://github.com/SpiderCh/GVL-00.git", cb);
+	const bool res = repo.Clone("/Users/chas/projects/git/test/gvl-01", "https://github.com/SpiderCh/GVL-00.git", cb);
 	if(res) {
 		std::cout << "Successfully clone repository";
 	} else {
